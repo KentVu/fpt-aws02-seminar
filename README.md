@@ -1,0 +1,1 @@
+# fpt-aws02-seminar
