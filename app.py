@@ -1,18 +1,85 @@
 from chalice import Chalice
+import json
+from collections import namedtuple
+from PIL import Image, ImageFilter
+import boto3
+import io
 
 app = Chalice(app_name='image-resize')
+app.debug = True
 
+S3 = boto3.client('s3')
 
 @app.route('/')
 def index():
     return {'hello': 'world'}
 
+def _json_object_hook(d): return namedtuple('X', d.keys())(*d.values())
+def json2obj(data): return json.loads(data, object_hook=_json_object_hook)
+
 @app.route('/resize', methods=['PUT'])
 def resize():
     request = app.current_request
+    #data = request.json_body
     #query_params = request.query_params
+    data = request.raw_body
+    # Parse JSON into an object with attributes corresponding to dict keys.
+    #reqobj = json.loads(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+    reqobj = json2obj(data)
+    print(reqobj.srcs3.bucket, reqobj.srcs3.key)
+    srcs3 = reqobj.srcs3
+    fileobj = S3.get_object(
+        Bucket=srcs3.bucket,
+        Key=srcs3.key
+    )
+    filedata = fileobj['Body'].read()
+    #src_in_mem = io.BytesIO()
+    #src_in_mem.write(fileobj['Body'].read())
+    src_in_mem = io.BytesIO(filedata)
+    #describeImageFile(fileobj['Body'])
+    #describeImageFile(src_in_mem)
+    #describeImage(Image.frombytes())
+    im = Image.open(src_in_mem)
+    describeImage(im)
+    outIm = resize_img(im,2)
+    outF = io.BytesIO()
+    outIm.save(outF, im.format)
+    outF.seek(0)
+    dests3 = reqobj.dests3
+    S3.upload_fileobj(outF, dests3.bucket, dests3.key#,ExtraArgs={'ACL': 'public-read'}
+        )
+    return {
+        'bucket': reqobj.srcs3.bucket,
+        'key': reqobj.srcs3.key,
+        'size': "%dx%d" % im.size,
+        'resized': "%dx%d" % outIm.size
+    }
 
-    return {'hello': 'world'}
+def resize_imgf(src, dest, downscale):
+    im = Image.open(src)
+    describeImage(im)
+    out = resize_img(im, downscale)
+    out.save(dest)
+    print("saved ", dest)
+
+def resize_img(im, downscale):
+    x,y = im.size
+    out = im.resize((x//downscale,y//downscale))
+    return out
+
+def describeImageFile(imFile):
+    describeImage(Image.open(imFile))
+
+def describeImage(im):
+    print(im.getpixel((256, 256)))
+    print(im.format, "%dx%d" % im.size, im.mode)
+
+if __name__ == '__main__':
+    import sys
+    downscale = 2
+    outf = "out.jpg"
+    print(__name__)
+    resize_imgf(sys.argv[1],sys.argv[2],2)
 
 # The view function above will return {"hello": "world"}
 # whenever you make an HTTP GET request to '/'.
