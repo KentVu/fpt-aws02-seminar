@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/api.js"></script>
+    <script>
+        localStorage.clear();
+    </script>
+</head>
+
+<body>
+
+    <div>
+        <h1>Login / Register ManTen System</h1>
+
+        <form id="loginSignupForm" name="myForm" method="post">
+            <table>
+                <tr>
+                    <th>Username :</th>
+                    <th>
+                        <input type="text" name="username">
+                    </th>
+                </tr>
+                <tr>
+                    <th>Password :</th>
+                    <th>
+                        <input type="password" name="password">
+                    </th>
+                </tr>
+            </table>
+            <input type="submit" value="Signup" id="SignupSubmit"></button>
+            <input type="submit" value="Login" id="LoginSubmit"></button>
+        </form>
+        <p></p>
+        <input type="submit" value="Anonymous" id="AnonymousSubmit"></button>
+    </div>
+
+    <script>
+
+        $('#AnonymousSubmit').click(function () {
+            window.location.replace("anonymous.html");
+        });
+
+        var requestType = '';
+        $('#SignupSubmit').click(function () {
+            requestType = 'Signup';
+        });
+        $('#LoginSubmit').click(function () {
+            requestType = 'Login';
+        });
+        $("#loginSignupForm").submit(function (e) {
+            e.preventDefault(); // avoid to execute the actual submit of the form.
+            var form = $(this);
+            var username = form.find('input[name="username"]').val();
+            var password = form.find('input[name="password"]').val();
+            if (!username || !password) {
+                alert("Please input username and password!");
+                return;
+            }
+            var loginData = {
+                "type": requestType,
+                "username": username,
+                "password": password
+            };
+            $.ajax({
+                type: "POST",
+                url: API_URL + "/login",
+                data: JSON.stringify(loginData),
+                //Bach's code: fix CORS bug
+                headers:{
+        			'Content-Type':'application/json'
+      			},
+                beforeSend: function (request) {
+                    request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                },
+                success: function (data) {
+                    console.log('success:');
+                    console.log(data);
+                    if (!data['result'] || !data['body']) {
+                        alert(data);
+                        return;
+                    }
+                    if (data['result'] == 'error') {
+                        alert(data['body']);
+                        return;
+                    }
+
+                    if (requestType == 'Signup') {
+                        alert("Please wait for approval.");
+                    } else if (requestType == 'Login') {
+                        var response = JSON.parse(data.body);
+                        localStorage.token = response.token;
+
+                        console.log("Reading localStorage.token");
+                        console.log(localStorage.token);
+                        window.location.replace("home.html");
+                    }
+
+                }, error: function (data) {
+                    console.log('An error occurred:');
+                    console.log(data);
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>

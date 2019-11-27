@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/api.js"></script>
+    <script>
+        verify();
+    </script>
+</head>
+
+<body>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        .fixed_header thead tr {
+            display: block;
+            width: 100%;
+        }
+
+        .fixed_header tbody {
+            display: block;
+            overflow: auto;
+            height: 100px;
+            width: 100%;
+        }
+
+        .image-fixed {
+            height: 128px;
+            width: 128px;
+        }
+    </style>
+    <table width="100%">
+        <tr>
+            <th colspan="3">
+                <h1>ManTen System - Home</h1>
+            </th>
+            <th>
+                Your name :
+            </th>
+            <th>
+                <button type="button" id="log-out-button">Logout</button>
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Shared link :
+            </td>
+            <td>
+                <button type="button">Copy</button>
+            </td>
+            <td>
+                Invalid shared link after:
+            </td>
+            <td colspan="2">
+                <button type="button" style="width:100%" id="admin-button">Admin</button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="text" style="width:100%" disabled><br>
+            </td>
+            <td>
+                <select name="period">
+                    <option value="10s">10 seconds</option>
+                    <option value="30s">30 seconds</option>
+                    <option value="1m">1 minute</option>
+                    <option value="5m">5 minutes</option>
+                    <option value="10m">10 minutes</option>
+                </select>
+            </td>
+            <td>
+                <button type="button" style="width:100%">UPLOAD</button>
+            </td>
+            <td>
+                <button type="button" style="width:100%">DOWNLOAD</button>
+            </td>
+        </tr>
+    </table>
+
+    <p></p>
+
+
+    <table width="100%">
+        <thead>
+            <tr>
+                <th>
+                    header 0
+                </th>
+                <th>
+                    header 1
+                </th>
+                <th>
+                    header 2
+                </th>
+                <th>
+                    header 3
+                </th>
+                <th>
+                    header 4
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <p></p>
+
+    <table width="100%">
+        <thead>
+            <tr>
+                <th>
+                    header 0
+                </th>
+                <th>
+                    header 1
+                </th>
+                <th>
+                    header 2
+                </th>
+                <th>
+                    header 3
+                </th>
+                <th>
+                    header 4
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>
+                    <input type="checkbox" name="heh" value="heh">
+                </th>
+                <th>
+                    <img class="image-fixed" src="https://66.media.tumblr.com/avatar_cd03a7eee98f_128.pnj">
+                </th>
+                <th>
+                    <img class="image-fixed"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_uqEgF9JU9vG-KFiHpzntpDx2K4IOn_YwYV-f7kvOyiWtQ6Af&s">
+                </th>
+                <th>
+                    <img class="image-fixed" src="https://66.media.tumblr.com/avatar_cd03a7eee98f_128.pnj">
+                </th>
+                <th>
+                    <img class="image-fixed"
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_uqEgF9JU9vG-KFiHpzntpDx2K4IOn_YwYV-f7kvOyiWtQ6Af&s">
+                </th>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <script>
+
+        // $("#admin-button").click(function () {
+        //     $.ajax({
+        //         type: "POST",
+        //         url: API_URL + "/verify",
+        //         headers: {
+        //             'token': localStorage.token
+        //         },
+        //         data: JSON.stringify({ 'abc': 123 }),
+        //         success: function (data) {
+        //             console.log('success:');
+        //             console.log(data);
+
+        //             var response = data.body;
+        //             if (!response || response != "ok") {
+        //                 alert("Log in please!");
+        //                 // window.location.replace("login-register.html");
+        //             }
+
+        //         }, error: function (data) {
+        //             console.log('An error occurred:');
+        //             console.log(data);
+        //             alert("Log in please!");
+        //             // window.location.replace("login-register.html");
+        //         }
+        //     });
+        // });
+
+        $("#log-out-button").click(function () {
+            localStorage.removeItem("token");
+            window.location.replace("login-register.html");
+        });
+    </script>
+</body>
+
+</html>
