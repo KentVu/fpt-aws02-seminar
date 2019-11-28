@@ -1,6 +1,7 @@
 ##!python3.7
 import boto3
 import urllib.request
+import sys
 
 #https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/lambda.html#Lambda.Client.get_function
 def download_function(fname):
@@ -15,4 +16,6 @@ def download_function(fname):
     urllib.request.urlretrieve(url, funcZip)
 
 if __name__ == "__main__":
-    download_function('VuNG-login')
+    #download_function('VuNG-login')
+    #download_function('Bach-login')
+    download_function(sys.argv[1])
