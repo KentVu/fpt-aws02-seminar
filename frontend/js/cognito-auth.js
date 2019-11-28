@@ -40,12 +40,15 @@ var ManTen = window.ManTen || {};
                     //console.log(err);
                     //$(location).attr("href", signinUrl);
                 } else if (!session.isValid()) {
-                	resolve(null);
+                    resolve(null);
+                    //console.log(err);
                     //$(location).attr("href", signinUrl);
                 } else {
                     // get user property
                 	cognitoUser.getUserAttributes(function(err, result) {
+                        console.log(result)
                     	if (err) {
+                            //console.log(err);
                         	$(location).attr("href", signinUrl);
                     	}
                     	
@@ -61,7 +64,8 @@ var ManTen = window.ManTen || {};
                 $.ajax({
         			contentType : "application/json",
         			headers: {
-            			"Authorization": session.getIdToken().jwtToken
+                        'Content-Type':'application/json',
+            			'Authorization': session.getIdToken().jwtToken
         			},
         			dataType : "json",
         			type : "GET",
@@ -75,8 +79,7 @@ var ManTen = window.ManTen || {};
     			})
             });
         } else {
-            //resolve(null);
-            $(location).attr("href", signinUrl);
+            resolve(null);
         }
     });
 
@@ -111,22 +114,8 @@ var ManTen = window.ManTen || {};
 
         var cognitoUser = createCognitoUser(username);
         cognitoUser.authenticateUser(authenticationDetails, {
-            onSuccess: function (result) {
-            var idToken = result.getIdToken().getJwtToken();          // Id Token
-            var accessToken = result.getAccessToken().getJwtToken();  // Access Token
-            var refreshToken = result.getRefreshToken().getToken();   // Refresh Token
-            
-            console.log("idToken : " + idToken);
-            console.log("accessToken : " + accessToken);
-            console.log("refreshToken : " + refreshToken);
-        	},
-
-        	onFailure: function(err) {
-            	// サインイン失敗の場合、エラーメッセージを画面に表示
-            	console.log(err);
-            	$("div#message span").empty();
-            	$("div#message span").append(err.message);
-        }
+            onSuccess: onSuccess,
+            onFailure: onFailure
         });
     }
 
@@ -162,7 +151,7 @@ var ManTen = window.ManTen || {};
         var password = $('#passwordInputSignin').val();
         event.preventDefault();
         signin(username, password,
-            function signinSuccess() {
+            function signinSuccess() {           
                 console.log('Successfully Logged In');
                 window.location.href = indexUrl;
             },
@@ -181,8 +170,8 @@ var ManTen = window.ManTen || {};
         var onSuccess = function registerSuccess(result) {
             var cognitoUser = result.user;
             console.log('user name is ' + cognitoUser.getUsername());
-            alert('Registration successful.')
-            var confirmation = ('Registration successful. Please check your email inbox or spam folder for your verification code.');
+            var confirmation = ('Registration successful.');
+            alert(confirmation);
             if (confirmation) {
                 window.location.href = indexUrl;
             }
