@@ -39,15 +39,12 @@ def resize():
     #describeImageFile(fileobj['Body'])
     #describeImageFile(src_in_mem)
     #describeImage(Image.frombytes())
+    #outF, im, outIm = resize_imgF_to_file(src_in_mem)
     im = Image.open(src_in_mem)
-    describeImage(im)
-    outIm = resize_img(im,2)
-    outF = io.BytesIO()
-    outIm.save(outF, im.format)
-    outF.seek(0)
+    outIm = downscaleImg(im, downscale)
+    outF = saveImg2File(outIm, im.format)
     dests3 = reqobj.dests3
-    S3.upload_fileobj(outF, dests3.bucket, dests3.key#,ExtraArgs={'ACL': 'public-read'}
-        )
+    S3.upload_fileobj(outF, dests3.bucket, dests3.key)
     return {
         'bucket': reqobj.srcs3.bucket,
         'key': reqobj.srcs3.key,
@@ -55,17 +52,38 @@ def resize():
         'resized': "%dx%d" % outIm.size
     }
 
-def resize_imgf(src, dest, downscale):
-    im = Image.open(src)
-    describeImage(im)
-    out = resize_img(im, downscale)
-    out.save(dest)
-    print("saved ", dest)
+def resize_imgF_to_file(srcFile, downscale):
+    im = Image.open(srcFile)
+    out = downscaleImg(im, downscale)
+    #outF, outIm = resize_img_to_file(im, 2)
+    #outF = io.BytesIO()
+    #saveImg2File(out, outF, im)
+    outF = saveImg2File(out, im.format)
+    return outF
 
-def resize_img(im, downscale):
+def saveImg2File(out, format):
+    outF = io.BytesIO()
+    out.save(outF, format)
+    outF.seek(0)
+    return outF
+
+def resize_img_to_file(im, downFactor):
+    describeImage(im)
+    outIm = downscaleImg(im,downFactor)
+    outF = saveImg2File(outIm, im.format)
+    return outF, outIm
+
+def downscaleImg(im, downscale):
     x,y = im.size
     out = im.resize((x//downscale,y//downscale))
     return out
+
+def resize_imgf(src, dest, downscale):
+    im = Image.open(src)
+    describeImage(im)
+    out = downscaleImg(im, downscale)
+    out.save(dest)
+    print("saved ", dest)
 
 def describeImageFile(imFile):
     describeImage(Image.open(imFile))
