@@ -7,7 +7,7 @@ function verify() {
     var token = localStorage.token;
     if (!token) {
         alert("Log in please!");
-        window.location.replace("login-register.html");
+        window.location.replace("login.html");
     }
     var verifyData = {
         "token": token
