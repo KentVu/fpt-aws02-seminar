@@ -20,11 +20,7 @@ def json2obj(data): return json.loads(data, object_hook=_json_object_hook)
 @app.route('/resize', methods=['PUT'])
 def resize():
     request = app.current_request
-    #data = request.json_body
-    #query_params = request.query_params
     data = request.raw_body
-    # Parse JSON into an object with attributes corresponding to dict keys.
-    #reqobj = json.loads(data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
     reqobj = json2obj(data)
     print(reqobj.srcs3.bucket, reqobj.srcs3.key)
     srcs3 = reqobj.srcs3
@@ -33,33 +29,29 @@ def resize():
         Key=srcs3.key
     )
     filedata = fileobj['Body'].read()
-    #src_in_mem = io.BytesIO()
-    #src_in_mem.write(fileobj['Body'].read())
     src_in_mem = io.BytesIO(filedata)
-    #describeImageFile(fileobj['Body'])
-    #describeImageFile(src_in_mem)
-    #describeImage(Image.frombytes())
-    #outF, im, outIm = resize_imgF_to_file(src_in_mem)
+    src_in_mem.seek(0)
     im = Image.open(src_in_mem)
-    outIm = downscaleImg(im, downscale)
-    outF = saveImg2File(outIm, im.format)
     dests3 = reqobj.dests3
-    S3.upload_fileobj(outF, dests3.bucket, dests3.key)
+    resizedFiles = []
+    for downscale in [2,4,8]:
+        outIm = downscaleImg(im, downscale)
+        outF = saveImg2File(outIm, im.format)
+        outKey = makeDstFilename(dests3.key, "-%dx%d" % outIm.size)
+        S3.upload_fileobj(outF, dests3.bucket, outKey)
+        resizedFiles.append(outKey)
     return {
         'bucket': reqobj.srcs3.bucket,
         'key': reqobj.srcs3.key,
         'size': "%dx%d" % im.size,
-        'resized': "%dx%d" % outIm.size
+        'outBucket': dests3.bucket,
+        'resized': resizedFiles
     }
 
-def resize_imgF_to_file(srcFile, downscale):
-    im = Image.open(srcFile)
-    out = downscaleImg(im, downscale)
-    #outF, outIm = resize_img_to_file(im, 2)
-    #outF = io.BytesIO()
-    #saveImg2File(out, outF, im)
-    outF = saveImg2File(out, im.format)
-    return outF
+def downscaleImg(im, downscale):
+    x,y = im.size
+    out = im.resize((x//downscale,y//downscale))
+    return out
 
 def saveImg2File(out, format):
     outF = io.BytesIO()
@@ -67,16 +59,21 @@ def saveImg2File(out, format):
     outF.seek(0)
     return outF
 
+def makeDstFilename(orgFname, tail):
+    dot = orgFname.rfind('.')
+    return orgFname[:dot] + tail + orgFname[dot:]
+
+def resize_imgF_to_file(srcFile, downscale):
+    im = Image.open(srcFile)
+    out = downscaleImg(im, downscale)
+    outF = saveImg2File(out, im.format)
+    return outF
+
 def resize_img_to_file(im, downFactor):
     describeImage(im)
     outIm = downscaleImg(im,downFactor)
     outF = saveImg2File(outIm, im.format)
     return outF, outIm
-
-def downscaleImg(im, downscale):
-    x,y = im.size
-    out = im.resize((x//downscale,y//downscale))
-    return out
 
 def resize_imgf(src, dest, downscale):
     im = Image.open(src)
