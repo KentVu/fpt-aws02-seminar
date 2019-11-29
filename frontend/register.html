@@ -41,20 +41,14 @@
 						<span class="focus-input100-2"></span>
 					</div>
 
-					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-						<input id="emailInputRegister" class="input100" type="text" name="email" placeholder="Email">
+					<div class="wrap-input100 rs1 validate-input" data-validate="Password is required">
+						<input id="passwordInputRegister" class="input100" type="password" name="password1" placeholder="Password">
 						<span class="focus-input100-1"></span>
 						<span class="focus-input100-2"></span>
 					</div>
 
 					<div class="wrap-input100 rs1 validate-input" data-validate="Password is required">
-						<input id="passwordInputRegister" class="input100" type="password" name="pass1" placeholder="Password">
-						<span class="focus-input100-1"></span>
-						<span class="focus-input100-2"></span>
-					</div>
-
-					<div class="wrap-input100 rs1 validate-input" data-validate="Password is required">
-						<input id="password2InputRegister" class="input100" type="password" name="pass2" placeholder="Confirm Password">
+						<input id="password2InputRegister" class="input100" type="password" name="password2" placeholder="Confirm Password">
 						<span class="focus-input100-1"></span>
 						<span class="focus-input100-2"></span>
 					</div>
@@ -80,42 +74,43 @@
             e.preventDefault(); // avoid to execute the actual submit of the form.
             var form = $(this);
             var username = form.find('input[name="username"]').val();
-            var email = form.find('input[name="email"]').val();
-            var password1 = form.find('input[name="pass1"]').val();
-            var password2 = form.find('input[name="pass2"]').val();
+            var password = form.find('input[name="password1"]').val();
+            var ConfirmPassword = form.find('input[name="password2"]').val();
             if (!username || !password) {
                 alert("Please input username and password!");
                 return;
             }
-            if (password1 != password2){
-            	alert("Confirm password not match, please try again!");
+            
+            if (password === ConfirmPassword){
+            	var SignupData = {
+                    "type": requestType,
+                    "username": username,
+                    "password": password
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "https://kjo9vkj58l.execute-api.ap-northeast-1.amazonaws.com/dev/login",
+                    data: JSON.stringify(SignupData),
+                    //Bach's code: fix CORS bug
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    /*beforeSend: function (request) {
+                        request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    },*/
+                    success: function (data) {
+                        alert("Please wait for approval.");
+                        window.location.href = "login.html";
+                        console.log('success:');
+                    }, error: function (data) {
+                        console.log('An error occurred:');
+                        console.log(data);
+                    }
+                });
+            }else {
+                alert("Confirm password is not matched.please try again!");
                 return;
             }
-            var SignupData = {
-                "type": requestType,
-                "username": username,
-                "password": password,
-                "email": email
-            };
-            $.ajax({
-                type: "POST",
-                url: API_URL + "/login",
-                data: JSON.stringify(loginData),
-                //Bach's code: fix CORS bug
-                headers:{
-        			'Content-Type':'application/json'
-      			},
-                /*beforeSend: function (request) {
-                    request.setRequestHeader("Access-Control-Allow-Origin", "*");
-                },*/
-                success: function (data) {
-                	alert("Please wait for approval.");
-                    console.log('success:');
-                }, error: function (data) {
-                    console.log('An error occurred:');
-                    console.log(data);
-                }
-            });
         });
 
     </script>
