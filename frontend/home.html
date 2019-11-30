@@ -1,25 +1,12 @@
 <!DOCTYPE html>
-<html lang ="en">
+<html>
 
 <head>
-	<title>ManTen</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="api.js"></script>
     <script>
         verify();
     </script>
-    <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
-    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
-    <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
-	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
-	<link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
-	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
-	<link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
-	<link rel="stylesheet" type="text/css" href="css/util.css">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
-	<link rel="stylesheet" type="text/css" href="css/navbar.css">
 </head>
 
 <body>
@@ -47,34 +34,18 @@
             width: 128px;
         }
     </style>
-    <div class="container">
-
-      <!-- Static navbar -->
-      <nav class="navbar navbar-default">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">ManTen System</a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-              <li><a href="/">Home</a>
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-              <button type="button" id="log-out-button">Logout</button>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </nav>
-    </div> <!-- /container -->
-    
-    <div class="content">
-    	 <table width="100%">
+    <table width="100%">
+        <tr>
+            <th colspan="3">
+                <h1>ManTen System - Home</h1>
+            </th>
+            <th>
+                Your name :
+            </th>
+            <th>
+                <button type="button" id="log-out-button">Logout</button>
+            </th>
+        </tr>
         <tr>
             <td>
                 Shared link :
@@ -182,39 +153,16 @@
             </tr>
         </tbody>
     </table>
-    	
-    </div>
-   
 
 
     <script>
+        $(document).ready(function () {
+            if (TOKEN_O['role'] == 0) {
+                $("#admin-button").remove();
+            }
 
-        // $("#admin-button").click(function () {
-        //     $.ajax({
-        //         type: "POST",
-        //         url: API_URL + "/verify",
-        //         headers: {
-        //             'token': localStorage.token
-        //         },
-        //         data: JSON.stringify({ 'abc': 123 }),
-        //         success: function (data) {
-        //             console.log('success:');
-        //             console.log(data);
+        });
 
-        //             var response = data.body;
-        //             if (!response || response != "ok") {
-        //                 alert("Log in please!");
-        //                 // window.location.replace("login-register.html");
-        //             }
-
-        //         }, error: function (data) {
-        //             console.log('An error occurred:');
-        //             console.log(data);
-        //             alert("Log in please!");
-        //             // window.location.replace("login-register.html");
-        //         }
-        //     });
-        // });
 
         $("#log-out-button").click(function () {
             localStorage.removeItem("token");
