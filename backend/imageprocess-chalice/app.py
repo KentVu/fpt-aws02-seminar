@@ -17,7 +17,7 @@ def index():
 def _json_object_hook(d): return namedtuple('X', d.keys())(*d.values())
 def json2obj(data): return json.loads(data, object_hook=_json_object_hook)
 
-@app.route('/resize', methods=['PUT'])
+@app.route('/resize', methods=['POST'])
 def resize():
     request = app.current_request
     data = request.raw_body

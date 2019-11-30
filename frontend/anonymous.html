@@ -53,7 +53,7 @@
     </form>
 
     <script>
-
+        API_RESIZE = 'https://7zuha5r3wc.execute-api.ap-northeast-1.amazonaws.com/api/resize'
         $('#uploadImageForm').on('submit', (function (e) {
             e.preventDefault();
             var file = $('#ImageBrowse')[0].files[0];
@@ -75,6 +75,33 @@
                     success: function (data) {
                         console.log("success");
                         console.log(data);
+                        s3Bucket = data["bucket"]
+                        fileName = data["fileName"]
+
+                        objectData = {
+                            "srcs3": {
+                                "bucket": s3Bucket,
+                                "key": fileName
+                            },
+                            "dests3": {
+                                "bucket": s3Bucket,
+                                "key": fileName
+                            }
+                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: API_RESIZE,
+                            data: JSON.stringify(objectData),
+                            contentType: "application/json",
+                            success: function (data) {
+                                console.log("resize success");
+                                console.log(data);
+                            },
+                            error: function(data) {
+                                console.log("error");
+                                console.log(data);
+                            }
+                        })
                     },
                     error: function (data) {
                         console.log("error");
