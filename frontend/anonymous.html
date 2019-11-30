@@ -53,7 +53,9 @@
     </form>
 
     <script>
-        API_RESIZE = 'https://7zuha5r3wc.execute-api.ap-northeast-1.amazonaws.com/api/resize'
+        API_RESIZE = 'https://7zuha5r3wc.execute-api.ap-northeast-1.amazonaws.com/api/resize';
+        OUT_BUCKET = 'vung-resized-image';
+        RESIZED_IMAGE = 'https://vung-resized-image.s3-ap-northeast-1.amazonaws.com/';
         $('#uploadImageForm').on('submit', (function (e) {
             e.preventDefault();
             var file = $('#ImageBrowse')[0].files[0];
@@ -69,6 +71,7 @@
                 };
                 $.ajax({
                     type: 'POST',
+                    crossDomain: true,
                     url: API_URL + "/image/upload",
                     data: JSON.stringify(uploadData),
                     contentType: "application/json",
@@ -84,18 +87,24 @@
                                 "key": fileName
                             },
                             "dests3": {
-                                "bucket": s3Bucket,
+                                "bucket": OUT_BUCKET,
                                 "key": fileName
                             }
                         }
                         $.ajax({
                             type: 'POST',
                             url: API_RESIZE,
+                            crossDomain: true,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
                             data: JSON.stringify(objectData),
-                            contentType: "application/json",
                             success: function (data) {
                                 console.log("resize success");
                                 console.log(data);
+                                for (image in data['resized']) {
+                                    window.open(RESIZED_IMAGE + data['resized'][image]);
+                                }
                             },
                             error: function(data) {
                                 console.log("error");
