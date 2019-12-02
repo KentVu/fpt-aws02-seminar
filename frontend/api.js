@@ -9,7 +9,7 @@ function verify() {
     TOKEN = localStorage.token;
     if (!TOKEN) {
         alert("Log in please!");
-        window.location.replace("login-register.html");
+        window.location.replace("login.html");
     }
 
     TOKEN_O = jQuery.parseJSON(TOKEN);
@@ -20,19 +20,22 @@ function verify() {
         type: "POST",
         url: API_URL + "/verify",
         data: JSON.stringify(verifyData),
+        headers: {
+            'Content-Type': 'application/json'
+        },
         success: function (data) {
             console.log('success:');
             console.log(data);
             if (!data || !data['result'] || data['result'] == 'error') {
                 alert("Log in please!");
-                window.location.replace("login-register.html");
+                window.location.replace("login.html");
             }
 
         }, error: function (data) {
             console.log('An error occurred:');
             console.log(data);
             alert("Log in please!");
-            window.location.replace("login-register.html");
+            window.location.replace("login.html");
         }
     });
 };

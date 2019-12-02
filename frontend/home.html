@@ -40,7 +40,7 @@
                 <h1>ManTen System - Home</h1>
             </th>
             <th>
-                Your name :
+                <div id="username"></div>
             </th>
             <th>
                 <button type="button" id="log-out-button">Logout</button>
@@ -74,7 +74,10 @@
                 </select>
             </td>
             <td>
-                <button type="button" style="width:100%">UPLOAD</button>
+                <form id="uploadImageForm" method="post">
+                    <input type="file" name="image" id="ImageBrowse" accept="image/png, image/jpeg" />
+                    <input type="submit" value="UPLOAD" />
+                </form>
             </td>
             <td>
                 <button type="button" style="width:100%">DOWNLOAD</button>
@@ -156,17 +159,82 @@
 
 
     <script>
+
+        API_RESIZE = 'https://7zuha5r3wc.execute-api.ap-northeast-1.amazonaws.com/api/resize';
+        OUT_BUCKET = 'vung-resized-image';
+        RESIZED_IMAGE = 'https://vung-resized-image.s3-ap-northeast-1.amazonaws.com/';
+
+        function downloadImages(params) {
+            $.ajax({
+                type: 'POST',
+                url: API_RESIZE,
+                crossDomain: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(objectData),
+                success: function (data) {
+                    console.log("resize success");
+                    console.log(data);
+                    for (image in data['resized']) {
+                        window.open(RESIZED_IMAGE + data['resized'][image]);
+                    }
+                },
+                error: function (data) {
+                    console.log("error");
+                    console.log(data);
+                }
+            })
+        }
+
         $(document).ready(function () {
+
+            $("#username").text("Hello " + TOKEN_O['username']);
+
             if (TOKEN_O['role'] == 0) {
                 $("#admin-button").remove();
             }
 
         });
 
+        $('#uploadImageForm').on('submit', (function (e) {
+            e.preventDefault();
+            var file = $('#ImageBrowse')[0].files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                console.log('FileReader success');
+                var uploadData = {
+                    "token": TOKEN,
+                    "name": file["name"],
+                    "file": reader.result
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: API_URL + "/image/upload",
+                    data: JSON.stringify(uploadData),
+                    contentType: "application/json",
+                    success: function (data) {
+                        console.log("success");
+                        console.log(data);
+                    },
+                    error: function (data) {
+                        console.log("error");
+                        console.log(data);
+                    }
+                });
+            };
+            reader.onerror = function (error) {
+                console.log('FileReader error: ', error);
+            };
+        }));
 
         $("#log-out-button").click(function () {
             localStorage.removeItem("token");
             window.location.replace("login.html");
+        });
+        $("#admin-button").click(function () {
+            window.location.replace("https://52.192.13.111:80/callback");
         });
     </script>
 </body>
